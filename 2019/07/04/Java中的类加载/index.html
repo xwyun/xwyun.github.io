@@ -1,0 +1,77 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Java中的类加载"><meta name="keywords" content="开发资料,java问题"><meta name="author" content="小威,undefined"><meta name="copyright" content="小威"><title>Java中的类加载【小威云博客】</title><link rel="stylesheet" href="/css/fan.css"><link rel="stylesheet" href="/css/thirdparty/jquery.mCustomScrollbar.min.css"><link rel="icon" href="/favicon.ico"><!-- script(src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")--><script src="/js/mathjax/mathjax.js"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+});
+</script><script>var isPassword = '' || false;
+if (isPassword) {
+    if (prompt('请输入文章密码') !== '') {
+        alert('密码错误！');
+        history.back();
+    }
+}</script><script>window.GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+}</script></head><body><canvas id="universe"></canvas><!--#body--><div id="sidebar"><div class="toggle-sidebar-info button-hover"><span data-toggle="文章目录">站点概览</span></div><div class="sidebar-toc"><div class="sidebar-toc-title">目录</div><div class="sidebar-toc-progress"><span class="progress-notice">您已阅读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc-progress-bar"></div></div><div class="sidebar-toc-content" id="sidebar-toc-content"></div></div><div class="author-info hide"><div class="author-info-avatar"><img class="author-info-avatar-img" src="https://q2.qlogo.cn/headimg_dl?spec=100&amp;dst_uin=925558109"></div><div class="author-info-name">小威</div><div class="author-info-description"></div><div class="links-buttons"><a class="links-button button-hover" href="https://github.com/xwyun" target="_blank">GitHub<i class="icon-dot bg-color5"></i></a><a class="links-button button-hover" href="mailto:w@xwei1.com" target="_blank">E-Mail<i class="icon-dot bg-color3"></i></a><a class="links-button button-hover" href="tencent://message/?uin=925558109&amp;Site=&amp;Menu=yes" target="_blank">QQ<i class="icon-dot bg-color0"></i></a></div><div class="author-info-articles"><a class="author-info-articles-archives article-meta" href="/archives"><span class="pull-top">日志</span><span class="pull-bottom">6</span></a><a class="author-info-articles-tags article-meta" href="/tags"><span class="pull-top">标签</span><span class="pull-bottom">4</span></a><a class="author-info-articles-categories article-meta" href="/categories"><span class="pull-top">分类</span><span class="pull-bottom">2</span></a></div></div></div><div id="main-container"><header><div id="menu-outer"><i class="menu-list-icon fas fa-bars"></i><nav id="menu-inner"><a class="menu-item" href="/">首页</a><a class="menu-item" href="/tags">标签</a><a class="menu-item" href="/categories">分类</a><a class="menu-item" href="/archives">归档</a><a class="menu-item" href="/about">关于</a></nav><div class="right-info"><a class="title-name" href="/">小威云博客</a><span id="now-time"></span></div></div></header><div id="content-outer"><div id="content-inner"><article id="post"><div class="post-header"><div class="title">Java中的类加载</div><div class="container"><time class="button-hover post-date"><i class="fas fa-calendar-alt article-icon" aria-hidden="true"></i> 发表于 2019-07-04 | 更新于 2019-07-04</time><!--time.button-hover.post-date #[i.fas.fa-calendar-alt.article-icon(aria-hidden="true")] #[=__('post.modified')] #[=date(page['updated'], config.date_format)]--><div class="button-hover categories"><i class="fa fa-inbox article-icon" aria-hidden="true"></i><a class="link-a" href="/categories/JAVA/">JAVA</a></div><div class="button-hover tags"><i class="fa fa-tag article-icon" aria-hidden="true"></i><a class="link-a" href="/tags/开发资料/">开发资料</a><span>&nbsp;|&nbsp;</span><i class="fa fa-tag article-icon" aria-hidden="true"></i><a class="link-a" href="/tags/java问题/">java问题</a></div></div></div><div class="main-content"><p>我们知道在运行Java程序时，首先需要把源代码编译成二进制文件也就是class文件，然后虚拟机才能执行。那虚拟机在执行class文件时，都进行了哪些步骤呢。下面我们将详细分享一下。当类也就是class文件被加载到虚拟机内存开始，到卸载出内存为止。它将要执行以下7个步骤：</p>
+<ul>
+<li>加载</li>
+<li>验证</li>
+<li>准备</li>
+<li>解析</li>
+<li>初始化</li>
+<li>使用</li>
+<li>卸载</li>
+</ul>
+<p><img src="http://p3.pstatp.com/large/pgc-image/3ce7f057d91145439c42bb65df48ee43" alt="Java中的类加载"></p>
+<p>下面我们看一下每一个阶段的详细流程。</p>
+<ul>
+<li><strong>加载</strong></li>
+</ul>
+<p>加载也就是把class文件加载到虚拟机内存中。在加载时虚拟机需要完成3个方面的工作：</p>
+<ol>
+<li>通过一个类的全限定名来获取类的二进制字节流。</li>
+<li>将字节流所代表的静态存储结构转化为方法区中的运行时数据结构。</li>
+<li>在内存中生成一个代表这个类的java.lang.Class对象。</li>
+</ol>
+<p>在加载完成后，虚拟机将这个二进制流存储在虚拟机的方法区中，并且通过在内存中生成的java.lang.Class对象可以访问方法区中的类型数据。</p>
+<ul>
+<li><strong>验证</strong></li>
+</ul>
+<p>验证的目的是保证加载的class文件中的字节流是符合虚拟机要求的，并且不会威胁虚拟机的安全。在验证阶段虚拟机主要分为4个步骤来验证：</p>
+<ol>
+<li>文件格式验证：主要的验证是验证二进制流是否符合Class文件的规范，并且是否能被当前版本的虚拟机处理。只有通过这个阶段的验证，虚拟机才会把二进制流存储到虚拟机内存的方法区中。</li>
+<li>元数据验证：这个阶段主要验证的是字节码的描述信息是否符合Java语言规范，也就是说主要对类的元信息进行语法上的检查，保证符合Java语言规范的元信息。</li>
+<li>字节码验证：这个阶段是最复杂的也是最耗时的验证，它主要目的是对类的方法体进行验证，校验类中的方法在运行时，不会做出威胁虚拟机的安全事件。</li>
+<li>符号引用验证：目的是将虚拟机中的符号引用转化为直接引用，保证解析动作可以正常执行。</li>
+</ol>
+<ul>
+<li><strong>准备</strong></li>
+</ul>
+<p>准备阶段的目的是为静态变量分配内存并设置静态变量的默认初始值。并且这个阶段只会为静态变量分配内存并不包括实例变量。实例变量将在对象实例化时随着对象分配在虚拟机的堆中。设置静态变量的默认初始值并不代表是复制操作。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> value = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在虚拟机准备阶段时，上述代码中的value并不会设置为1，而是0，因为这时还没有执行Java的赋值运算。不同的基本数据类型的默认初始值是不同的，下面是它们的区别：</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/47d9ea92a98649f8b0150f007137e292" alt="Java中的类加载"></p>
+<p>正常在准备阶段静态变量的初始化都是默认值，也就是上述列表中的值，但也有例外的可能，如果一个静态变量是final变量，那么在准备阶段时，此变量将会被赋值为指定的值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> value = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中，在准备阶段就会把value设置为1。</p>
+<ul>
+<li><strong>解析</strong></li>
+</ul>
+<p>解析就是虚拟机将常量池中的符号引用替换成直接引用的过程。在解析时主要分为下面的几种：</p>
+<ol>
+<li>类或接口的解析</li>
+<li>字段解析</li>
+<li>类方法解析</li>
+<li>接口方法解析</li>
+</ol>
+<ul>
+<li><strong>初始化</strong></li>
+</ul>
+<p>初始化阶段主要的目的是为静态变量或者静态代码块执行赋值的操作。静态代码块中的语句只能访问定义在静态代码块之前变量，定义它之后的变量，在静态代码块中可以赋值，但不却不能访问。下面我们看一下具体的代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Test &#123; <span class="keyword">static</span> &#123; i = <span class="number">0</span>; <span class="comment">// 编译没有问题 虽然静态变量的定义在静态代码码之后但依然可以赋值 System.out.println(i); //编译出错 静态代码块只能访问在它之前定义的静态变量 &#125; static int i = 1;&#125;</span></span><br></pre></td></tr></table></figure></div><div class="post-copyright"><div class="post-copyright-author"><span class="post-copyright-meta">本文作者: </span><span class="post-copyright-info"><a href="mailto:undefined">小威</a></span></div><div class="post-copyright-type"><span class="post-copyright-meta">本文链接: </span><span class="post-copyright-info"><a href="http://blog.xweii.cn/2019/07/04/Java中的类加载/">http://blog.xweii.cn/2019/07/04/Java中的类加载/</a></span></div><div class="post-copyright-notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://blog.xweii.cn">小威云博客</a>！</span></div></div></article><div id="pagination"><div class="prev-post pull-left"><span class="line line-top"></span><span class="line line-right"></span><span class="line line-bottom"></span><span class="line line-left"></span><a href="/2019/07/04/Java多线程之间实现同步/"><i class="fas fa-angle-left">&nbsp;</i><span>Java多线程之间实现同步</span></a></div><div class="next-post pull-right"><span class="line line-top"></span><span class="line line-right"></span><span class="line line-bottom"></span><span class="line line-left"></span><a href="/2019/07/04/Java面试官：给Java面试者的八点建议/"><span>Java面试官：给Java面试者的八点建议</span><span>&nbsp;</span><i class="fas fa-angle-right"></i></a></div></div><!--div!= paginator()--></div></div><div class="button-hover" id="return-top"><i class="fas fa-arrow-up" aria-hidden="true"></i></div><footer><div id="footer"><div class="button-hover" id="side-button"><i class="fas fa-arrow-right"></i></div><div class="right-content"><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fas fa-file-o"></i></span><span id="busuanzi_value_page_pv"></span><span></span></div><div class="copyright">&copy;2017 ～ 2019 By 小威</div></div></div></footer></div><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/thirdparty/jquery-3.3.1.min.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/thirdparty/velocity.min.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/thirdparty/jquery.mCustomScrollbar.concat.min.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/fan.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/canvas_bg.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/utils.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/scroll.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/sidebar.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/copy.js"></script><!--script(src=url)--></body></html>

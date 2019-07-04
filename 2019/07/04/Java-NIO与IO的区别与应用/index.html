@@ -1,0 +1,82 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Java NIO与IO的区别与应用"><meta name="keywords" content="Java资料"><meta name="author" content="小威,undefined"><meta name="copyright" content="小威"><title>Java NIO与IO的区别与应用【小威云博客】</title><link rel="stylesheet" href="/css/fan.css"><link rel="stylesheet" href="/css/thirdparty/jquery.mCustomScrollbar.min.css"><link rel="icon" href="/favicon.ico"><!-- script(src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")--><script src="/js/mathjax/mathjax.js"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+});
+</script><script>var isPassword = '' || false;
+if (isPassword) {
+    if (prompt('请输入文章密码') !== '') {
+        alert('密码错误！');
+        history.back();
+    }
+}</script><script>window.GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+}</script></head><body><canvas id="universe"></canvas><!--#body--><div id="sidebar"><div class="toggle-sidebar-info button-hover"><span data-toggle="文章目录">站点概览</span></div><div class="sidebar-toc"><div class="sidebar-toc-title">目录</div><div class="sidebar-toc-progress"><span class="progress-notice">您已阅读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc-progress-bar"></div></div><div class="sidebar-toc-content" id="sidebar-toc-content"></div></div><div class="author-info hide"><div class="author-info-avatar"><img class="author-info-avatar-img" src="https://q2.qlogo.cn/headimg_dl?spec=100&amp;dst_uin=925558109"></div><div class="author-info-name">小威</div><div class="author-info-description"></div><div class="links-buttons"><a class="links-button button-hover" href="https://github.com/xwyun" target="_blank">GitHub<i class="icon-dot bg-color1"></i></a><a class="links-button button-hover" href="mailto:w@xwei1.com" target="_blank">E-Mail<i class="icon-dot bg-color6"></i></a><a class="links-button button-hover" href="tencent://message/?uin=925558109&amp;Site=&amp;Menu=yes" target="_blank">QQ<i class="icon-dot bg-color6"></i></a></div><div class="author-info-articles"><a class="author-info-articles-archives article-meta" href="/archives"><span class="pull-top">日志</span><span class="pull-bottom">6</span></a><a class="author-info-articles-tags article-meta" href="/tags"><span class="pull-top">标签</span><span class="pull-bottom">4</span></a><a class="author-info-articles-categories article-meta" href="/categories"><span class="pull-top">分类</span><span class="pull-bottom">2</span></a></div></div></div><div id="main-container"><header><div id="menu-outer"><i class="menu-list-icon fas fa-bars"></i><nav id="menu-inner"><a class="menu-item" href="/">首页</a><a class="menu-item" href="/tags">标签</a><a class="menu-item" href="/categories">分类</a><a class="menu-item" href="/archives">归档</a><a class="menu-item" href="/about">关于</a></nav><div class="right-info"><a class="title-name" href="/">小威云博客</a><span id="now-time"></span></div></div></header><div id="content-outer"><div id="content-inner"><article id="post"><div class="post-header"><div class="title">Java NIO与IO的区别与应用</div><div class="container"><time class="button-hover post-date"><i class="fas fa-calendar-alt article-icon" aria-hidden="true"></i> 发表于 2019-07-04 | 更新于 2019-07-04</time><!--time.button-hover.post-date #[i.fas.fa-calendar-alt.article-icon(aria-hidden="true")] #[=__('post.modified')] #[=date(page['updated'], config.date_format)]--><div class="button-hover categories"><i class="fa fa-inbox article-icon" aria-hidden="true"></i><a class="link-a" href="/categories/JAVA/">JAVA</a></div><div class="button-hover tags"><i class="fa fa-tag article-icon" aria-hidden="true"></i><a class="link-a" href="/tags/Java资料/">Java资料</a></div></div></div><div class="main-content"><p>在研究Java NIO和IO API时，很快就会发现一个问题：</p>
+<p>我什么时候应该使用IO，什么时候应该使用NIO？</p>
+<p>在本文中，我将尝试阐明Java NIO和IO之间的差异，它们的用例以及它们如何影响代码的设计。</p>
+<p><strong>Java NIO和IO的主要区别</strong></p>
+<p>下表总结了Java NIO和IO之间的主要区别。我将在表格后面的部分中详细介绍每个区别。</p>
+<p><strong>IONIO</strong>Stream orientedBuffer orientedBlocking IONon blocking IO</p>
+<p>Selectors</p>
+<p><strong>Stream Oriented vs. Buffer Oriented</strong></p>
+<p>Java NIO和IO之间的第一个重要区别是IO是面向流的，其中NIO是面向缓冲区的。那么，这意味着什么？</p>
+<p>面向流的Java IO意味着您可以从流中一次读取一个或多个字节。你对读取的字节做什么取决于你。它们不会缓存在任何地方。此外，您无法在流中的数据中前后移动。如果需要在从流中读取的数据中前后移动，则需要先将其缓存在缓冲区中。</p>
+<p>Java NIO的面向缓冲区的方法略有不同。数据被读入缓冲区，稍后处理该缓冲区。你可以根据需要在缓冲区中前后移动。这使你在处理过程中具有更大的灵活性。但是，你还需要检查缓冲区是否包含完整处理所需的所有数据。并且，你需要确保在将更多数据读入缓冲区时，不要覆盖尚未处理的缓冲区中的数据。</p>
+<p><strong>Blocking vs. Non-blocking IO</strong></p>
+<p>Java IO的各种流都是blocking的。这意味着，当线程调用read（）或write（）时，该线程将被阻塞，直到有一些数据要读取，或者数据被完全写入，在此期间，该线程无法执行任何其他操作。</p>
+<p>Java NIO的非阻塞模式允许线程请求从通道读取数据，并且只获取当前可用的内容，或者根本没有数据，如果当前没有数据可用。线程可以继续使用其他内容，而不是在数据可供读取之前保持阻塞状态。</p>
+<p>非阻塞写入也是如此，线程可以请求将某些数据写入通道，但不要等待它完全写入。然后线程可以继续并在同一时间做其他事情。</p>
+<p>线程在IO调用中没有阻塞时花费空闲时间，通常在此期间在其他通道上执行IO。也就是说，单个线程现在可以管理多个输入和输出通道。</p>
+<p>Selectors</p>
+<p>Java NIO的选择器允许单个线程监视多个输入通道。你可以使用选择器注册多个通道，然后使用单个线程“选择”具有可用于处理的输入的通道，或者选择准备写入的通道。这种选择器机制使单个线程可以轻松管理多个通道。</p>
+<p><strong>NIO和IO如何影响应用程序设计</strong></p>
+<p>选择NIO或IO作为IO工具包可能会影响应用程序设计的以下方面:</p>
+<ol>
+<li>API调用NIO或IO类。</li>
+<li>处理数据。</li>
+<li>用于处理数据的线程数。</li>
+</ol>
+<p><strong>API调用</strong></p>
+<p>当然，使用NIO时的API调用看起来与使用IO时不同。这并不奇怪。而不是仅仅从例如InputStream读取字节的数据字节，必须首先将数据读入缓冲区，然后从那里进行处理。</p>
+<p><strong>数据处理</strong></p>
+<p>使用纯NIO设计与IO设计时，数据处理也会受到影响。</p>
+<p>在IO设计中，您从InputStream或Reader中读取字节的数据字节。想象一下，您正在处理基于行的文本数据流。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Name: Mr.King</span><br><span class="line">Age: <span class="number">19</span></span><br><span class="line">Email: admin<span class="meta">@xweiyun</span>.cn</span><br><span class="line">QQ: <span class="number">925558109</span></span><br></pre></td></tr></table></figure>
+
+<p>这个文本行流可以像这样处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">InputStream input = ... ; <span class="comment">// get the InputStream from the client socket</span></span><br><span class="line">BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(input));</span><br><span class="line">String nameLine = reader.readLine();</span><br><span class="line">String ageLine = reader.readLine();</span><br><span class="line">String emailLine = reader.readLine();</span><br><span class="line">String phoneLine = reader.readLine();</span><br></pre></td></tr></table></figure>
+
+<p>注意处理状态是如何，由程序执行的程度决定的。换句话说，一旦第一个reader.readLine（）方法返回，您就确定已经读取了整行文本。readLine（）会阻塞直到读取整行，这就是原因。您还知道此行包含名称。同样，当第二个readLine（）调用返回时，您知道此行包含年龄等。</p>
+<p>正如您所看到的，只有当有新数据要读取时，程序才会进行，并且对于每个步骤，您都知道该数据是什么。一旦执行的线程已经超过读取代码中的某个数据片段，该线程就不会在数据中向后移动（通常不会）。此图中还说明了此原则：</p>
+<p><a href="http://www.apkbus.com/data/attachment/album/201906/19/111405o19xecyr5msx6jx5.jpg" target="_blank" rel="noopener"><img src="http://www.apkbus.com/data/attachment/album/201906/19/111405o19xecyr5msx6jx5.jpg" alt="img"></a></p>
+<p><strong>Java IO：从阻塞流中读取数据。</strong></p>
+<p>NIO的实现看起来会有所不同。这是一个简化的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</span><br><span class="line"><span class="keyword">int</span> bytesRead = inChannel.read(buffer);</span><br></pre></td></tr></table></figure>
+
+<p>注意第二行从通道读取字节到ByteBuffer。当该方法调用返回时，您不知道所需的所有数据是否都在缓冲区内。你只知道缓冲区包含一些字节，这使得处理更加困难。</p>
+<p>想象一下，在第一次读取（缓冲）调用之后，是否所有读入缓冲区的内容都是半行。例如，“姓名：An”。你能处理这些数据吗？并不是的。在完成任何数据的处理之前，您需要等待至少一整行数据进入缓冲区。</p>
+<p>那么你怎么知道缓冲区是否包含足够的数据来处理它？好吧，你没有。找出的唯一方法是查看缓冲区中的数据。结果是，在您知道所有数据是否存在之前，您可能需要多次检查缓冲区中的数据。这既低效又可能在程序设计方面变得混乱。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">48</span>);</span><br><span class="line"><span class="keyword">int</span> bytesRead = inChannel.read(buffer);</span><br><span class="line"><span class="keyword">while</span>(! bufferFull(bytesRead) ) &#123;</span><br><span class="line"> bytesRead = inChannel.read(buffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>bufferFull（）方法必须跟踪读入缓冲区的数据量，并返回true或false，具体取决于缓冲区是否已满。换句话说，如果缓冲区已准备好进行处理，则认为它已满。</p>
+<p>bufferFull（）方法扫描缓冲区，但必须使缓冲区保持与调用bufferFull（）方法之前相同的状态。如果不是，则可能无法在正确的位置读入读入缓冲区的下一个数据。这不是不可能的，但这是另一个需要注意的问题。</p>
+<p>如果缓冲区已满，则可以对其进行处理。如果它不满，您可能能够部分处理那里的任何数据，如果这在您的特定情况下是有意义的。在许多情况下，它没有。</p>
+<p>这个图中说明了is-data-in-buffer-ready循环：</p>
+<p><a href="http://www.apkbus.com/data/attachment/album/201906/19/111320lujieviqjut63qiq.jpg" target="_blank" rel="noopener"><img src="http://www.apkbus.com/data/attachment/album/201906/19/111320lujieviqjut63qiq.jpg" alt="img"></a></p>
+<p><strong>Java NIO：从通道读取数据，直到所有需要的数据都在缓冲区中。</strong></p>
+<p>摘要</p>
+<p>NIO允许您仅使用一个（或几个）线程来管理多个通道（网络连接或文件），但成本是解析数据可能比从阻塞流中读取数据时更复杂。</p>
+<p>如果您需要同时管理数千个打开的连接，每个只发送一些数据，例如聊天服务器，在NIO中实现服务器可能是一个优势。同样，如果您需要与其他计算机保持大量开放连接，例如在P2P网络中，使用单个线程来管理所有出站连接可能是一个优势。此图中说明了这一个线程，多个连接设计：</p>
+<p><a href="http://www.apkbus.com/data/attachment/album/201906/19/111232gmtxenh9wtaa7h9y.jpg" target="_blank" rel="noopener"><img src="http://www.apkbus.com/data/attachment/album/201906/19/111232gmtxenh9wtaa7h9y.jpg" alt="img"></a></p>
+<p><strong>Java NIO：管理多个连接的单个线程。</strong></p>
+<p>如果您拥有较少带宽的连接，一次发送大量数据，那么可能最经典的IO服务器实现可能是最合适的。此图说明了经典的IO服务器设计：</p>
+<p><a href="http://www.apkbus.com/data/attachment/album/201906/19/111204gupboqqno84pcdzd.jpg" target="_blank" rel="noopener"><img src="http://www.apkbus.com/data/attachment/album/201906/19/111204gupboqqno84pcdzd.jpg" alt="img"></a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Java IO：经典的IO服务器设计 - 由一个线程处理的一个连接。简化理解就读取速度来说：CPU &gt; 内存 &gt; 硬盘I- 就是从硬盘到内存O- 就是从内存到硬盘第一种方式：从硬盘读取数据，然后程序一直等，数据读完后，继续你的操作。这种方式是最简单的，叫阻塞IO。第二种方式：从硬盘读取数据，然后程序继续向下执行，等数据读取完后，通知当前程序读取完成（对硬件来说叫中断，对程序来说叫回调），然后此程序可以立即处理读取的数据，也可以执行完当前操作后再对读取完的数据进行操作。</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">操作系统是按块 Block从硬盘拿数据，就如同一个大脸盆，一下子就放入了一盆水。但是，当 Java 使用的时候，旧的 IO 确实基于 流 Stream的，也就是虽然操作系统给我了一脸盆水，但是我得用吸管慢慢喝。于是，NIO 横空出世。。</span><br></pre></td></tr></table></figure></div><div class="post-copyright"><div class="post-copyright-author"><span class="post-copyright-meta">本文作者: </span><span class="post-copyright-info"><a href="mailto:undefined">小威</a></span></div><div class="post-copyright-type"><span class="post-copyright-meta">本文链接: </span><span class="post-copyright-info"><a href="http://blog.xweii.cn/2019/07/04/Java-NIO与IO的区别与应用/">http://blog.xweii.cn/2019/07/04/Java-NIO与IO的区别与应用/</a></span></div><div class="post-copyright-notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://blog.xweii.cn">小威云博客</a>！</span></div></div></article><div id="pagination"><div class="prev-post pull-left"><span class="line line-top"></span><span class="line line-right"></span><span class="line line-bottom"></span><span class="line line-left"></span><a href="/2019/07/04/关于Java代码优化的N条建议/"><i class="fas fa-angle-left">&nbsp;</i><span>关于Java代码优化的N条建议</span></a></div><div class="next-post pull-right"><span class="line line-top"></span><span class="line line-right"></span><span class="line line-bottom"></span><span class="line line-left"></span><a href="/2019/07/04/JAVA、WEB、PHP、UI、Python、C、C-分别是什么？/"><span>JAVA、WEB、PHP、UI、Python、C、C++分别是什么？</span><span>&nbsp;</span><i class="fas fa-angle-right"></i></a></div></div><!--div!= paginator()--></div></div><div class="button-hover" id="return-top"><i class="fas fa-arrow-up" aria-hidden="true"></i></div><footer><div id="footer"><div class="button-hover" id="side-button"><i class="fas fa-arrow-right"></i></div><div class="right-content"><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fas fa-file-o"></i></span><span id="busuanzi_value_page_pv"></span><span></span></div><div class="copyright">&copy;2017 ～ 2019 By 小威</div></div></div></footer></div><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/thirdparty/jquery-3.3.1.min.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/thirdparty/velocity.min.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/thirdparty/jquery.mCustomScrollbar.concat.min.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/fan.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/canvas_bg.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/utils.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/scroll.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/sidebar.js"></script><!--script(src=url)--><!--js(src=url_for(url) + '?version=' + version())--><script src="/js/copy.js"></script><!--script(src=url)--></body></html>
